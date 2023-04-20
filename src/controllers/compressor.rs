@@ -1,4 +1,4 @@
-use ansi_term::Colour;
+use owo_colors::OwoColorize;
 use anyhow::Result;
 use inquire::CustomType;
 use inquire::required;
@@ -73,8 +73,7 @@ pub fn compress_images() -> Result<()> {
         )
         .build()?;
 
-    let msg = Colour::Yellow.paint("Compressing...").to_string();
-    let spinner = Spinner::new(spinners::Dots, msg, Color::Yellow);
+    let spinner = Spinner::new(spinners::Dots, "Compressing...", Color::Yellow);
 
     let mut comp = FolderCompressor::new(img.input_folder, img.output_folder);
     comp.set_factor(Factor::new(img.quality, 1.0));
@@ -86,7 +85,7 @@ pub fn compress_images() -> Result<()> {
             spinner.success("\nDone!\n");
         },
         Err(_) => {
-            println!("{}", Colour::Red.paint("\nError, cannot compress the images!\n"));
+            println!("{}", "\nError! Cannot compress the images!".red());
             return Ok(());
         }
     }

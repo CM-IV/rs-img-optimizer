@@ -1,4 +1,4 @@
-use ansi_term::Colour;
+use owo_colors::OwoColorize;
 use anyhow::{Result, anyhow};
 use inquire::{
     ui::{Attributes, Color, RenderConfig, StyleSheet},
@@ -57,14 +57,14 @@ fn main() -> Result<()> {
                             /____/                                                                     
     "#;
 
-    println!("{}", Colour::Red.paint(greet));
+    println!("{}", greet.red());
     println!("Image Processor");
     println!("By CM-IV <chuck@civdev.xyz>\n");
 
     loop {
         match MainMenuBuilder::new(&[
-            "Optimize JPG images",
-            "Convert JPG images",
+            "Optimize folder of images",
+            "Convert folder of images to WebP",
             "Exit",
         ])
         .with_help_message("Main menu")
@@ -73,7 +73,7 @@ fn main() -> Result<()> {
             "Optimize JPG images" => cli::compressor_menu::compression_operations()?,
             "Convert JPG images" => cli::converter_menu::conversion_operations()?,
             "Exit" => {
-                println!("{}", Colour::Purple.paint("\nGoodbye!\n"));
+                println!("{}", "\nGoodbye!\n".purple());
                 break;
             }
             err => return Err(anyhow!("{}", err)),

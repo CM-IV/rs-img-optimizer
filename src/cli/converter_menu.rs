@@ -36,13 +36,13 @@ impl<'a> ConverterMenuBuilder<'a> {
 pub fn conversion_operations() -> Result<()> {
     loop {
         match ConverterMenuBuilder::new(&[
-            "Convert a folder of JPG images to WebP",
+            "Convert a folder of images to WebP",
             "Go back",
         ])
         .with_help_message("Compression menu")
         .build()?
         {
-            "Convert a folder of JPG images to WebP" => converter::encode_webp()?,
+            "Convert a folder of images to WebP" => converter::encode_webp()?,
             "Go back" => {
                 break;
             }

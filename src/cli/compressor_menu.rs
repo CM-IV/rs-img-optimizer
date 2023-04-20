@@ -36,13 +36,13 @@ impl<'a> CompressorMenuBuilder<'a> {
 pub fn compression_operations() -> Result<()> {
     loop {
         match CompressorMenuBuilder::new(&[
-            "Compress a folder of JPG images",
+            "Compress a folder of images",
             "Go back",
         ])
         .with_help_message("Compression menu")
         .build()?
         {
-            "Compress a folder of JPG images" => compressor::compress_images()?,
+            "Compress a folder of images" => compressor::compress_images()?,
             "Go back" => {
                 break;
             }

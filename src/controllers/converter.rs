@@ -1,6 +1,5 @@
 use std::fs;
 
-use ansi_term::Colour;
 use anyhow::Result;
 use webp::Encoder;
 use inquire::{required, CustomType};
@@ -66,8 +65,7 @@ pub fn encode_webp() -> Result<()> {
         )
         .build()?;
 
-    let msg = Colour::Yellow.paint("Converting to WebP...").to_string();
-    let spinner = Spinner::new(spinners::Dots, msg, Color::Yellow);
+    let spinner = Spinner::new(spinners::Dots, "Converting to WebP...", Color::Yellow);
 
     let files = fs::read_dir(&img.input_folder)?;
 
