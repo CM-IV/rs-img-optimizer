@@ -3,3 +3,6 @@ build:
 
 run:
     cargo run
+
+preview:
+    ./target/release/rs-img
