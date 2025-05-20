@@ -1,14 +1,24 @@
-use owo_colors::OwoColorize;
-use anyhow::{Result, anyhow};
+use anyhow::{anyhow, Result};
+use bon::Builder;
 use inquire::{
     ui::{Attributes, Color, RenderConfig, StyleSheet},
     Select,
 };
+use owo_colors::OwoColorize;
 
-pub mod controllers;
 pub mod cli;
+pub mod controllers;
 
-fn get_render_cfg() -> RenderConfig {
+const GREETING: &str = r#"
+                _
+   __________      (_)___ ___  ____ _
+  / ___/ ___/_____/ / __ `__ \/ __ `/
+ / /  (__  )_____/ / / / / / / /_/ /
+/_/  /____/     /_/_/ /_/ /_/\__, /
+                            /____/
+"#;
+
+fn get_render_cfg() -> RenderConfig<'static> {
     RenderConfig {
         answer: StyleSheet::new()
             .with_attr(Attributes::ITALIC)
@@ -18,26 +28,15 @@ fn get_render_cfg() -> RenderConfig {
     }
 }
 
-struct MainMenuBuilder<'a> {
-    items: &'a [&'a str],
+#[derive(Builder)]
+struct MainMenu<'a> {
+    items: Vec<&'a str>,
     help_message: Option<&'a str>,
 }
 
-impl<'a> MainMenuBuilder<'a> {
-    fn new(items: &'a [&'a str]) -> Self {
-        Self {
-            items,
-            help_message: None,
-        }
-    }
-
-    fn with_help_message(mut self, message: &'a str) -> Self {
-        self.help_message = Some(message);
-        self
-    }
-
-    fn build(self) -> Result<&'a str> {
-        let choice = Select::new("What would you like to do?", self.items.to_vec())
+impl<'a> MainMenu<'a> {
+    fn prompt(&self) -> Result<&'a str> {
+        let choice = Select::new("What would you like to do?", self.items.clone())
             .with_help_message(self.help_message.unwrap_or_default())
             .prompt()?;
 
@@ -48,30 +47,23 @@ impl<'a> MainMenuBuilder<'a> {
 fn main() -> Result<()> {
     inquire::set_global_render_config(get_render_cfg());
 
-    let greet = r#"
-                    _             
-   __________      (_)___ ___  ____ _
-  / ___/ ___/_____/ / __ `__ \/ __ `/
- / /  (__  )_____/ / / / / / / /_/ / 
-/_/  /____/     /_/_/ /_/ /_/\__, /  
-                            /____/                                                                     
-    "#;
-
-    println!("{}", greet.red());
+    println!("{}", GREETING.red());
     println!("Image Processor");
     println!("By CM-IV <chuck@civdev.xyz>\n");
 
     loop {
-        match MainMenuBuilder::new(&[
-            "Optimize folder of images",
-            "Convert folder of images to WebP",
-            "Exit",
-        ])
-        .with_help_message("Main menu")
-        .build()?
-        {
-            "Optimize JPG images" => cli::compressor_menu::compression_operations()?,
-            "Convert JPG images" => cli::converter_menu::conversion_operations()?,
+        let menu = MainMenu::builder()
+            .items(vec![
+                "Optimize folder of images",
+                "Convert folder of images to WebP",
+                "Exit",
+            ])
+            .help_message("Main menu")
+            .build();
+
+        match menu.prompt()? {
+            "Optimize folder of images" => cli::compressor_menu::compression_operations()?,
+            "Convert folder of images to WebP" => cli::converter_menu::conversion_operations()?,
             "Exit" => {
                 println!("{}", "\nGoodbye!\n".purple());
                 break;

@@ -1,30 +1,20 @@
-use anyhow::{Result, anyhow};
+use anyhow::{anyhow, Result};
+use bon::Builder;
 use inquire::Select;
 
 use crate::controllers::compressor;
 
-struct CompressorMenuBuilder<'a> {
-    items: &'a [&'a str],
+#[derive(Builder)]
+struct CompressorMenu<'a> {
+    items: Vec<&'a str>,
     help_message: Option<&'a str>,
 }
 
-impl<'a> CompressorMenuBuilder<'a> {
-    fn new(items: &'a [&'a str]) -> Self {
-        Self {
-            items,
-            help_message: None,
-        }
-    }
-
-    fn with_help_message(mut self, message: &'a str) -> Self {
-        self.help_message = Some(message);
-        self
-    }
-
-    fn build(self) -> Result<&'a str> {
+impl<'a> CompressorMenu<'a> {
+    fn prompt(&self) -> Result<&'a str> {
         let choice = Select::new(
             "Which compression operation would you like to perform?",
-            self.items.to_vec(),
+            self.items.clone(),
         )
         .with_help_message(self.help_message.unwrap_or_default())
         .prompt()?;
@@ -35,13 +25,12 @@ impl<'a> CompressorMenuBuilder<'a> {
 
 pub fn compression_operations() -> Result<()> {
     loop {
-        match CompressorMenuBuilder::new(&[
-            "Compress a folder of images",
-            "Go back",
-        ])
-        .with_help_message("Compression menu")
-        .build()?
-        {
+        let menu = CompressorMenu::builder()
+            .items(vec!["Compress a folder of images", "Go back"])
+            .help_message("Compression menu")
+            .build();
+
+        match menu.prompt()? {
             "Compress a folder of images" => compressor::compress_images()?,
             "Go back" => {
                 break;
