@@ -7,7 +7,6 @@ edition = "2024"
 
 [dependencies]
 anyhow = "1.0.98"
-inquire = "0.7.5"
 image_compressor = "1.5.2"
 num_cpus = "1.16.0"
 owo-colors = "4.2.1"
@@ -18,6 +17,7 @@ rayon = "1.10.0"
 bon = "3.6.3"
 little_exif = "0.6.8"
 jiff = "0.2.15"
+promkit = { version = "0.9.1", features = ["listbox", "readline"] }
 
 # optimize for size
 [profile.release]

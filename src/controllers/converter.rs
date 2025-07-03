@@ -1,9 +1,9 @@
 use anyhow::Result;
 use bon::Builder;
 use image::ImageReader;
-use inquire::{CustomType, required};
 use jiff::civil::DateTime;
 use little_exif::metadata::Metadata;
+use promkit::preset::{listbox::Listbox, readline::Readline};
 use rayon::prelude::*;
 use spinoff::{Color, Spinner, spinners};
 use std::{fs, path::PathBuf};
@@ -27,20 +27,23 @@ struct ImageRenamer {
 pub fn encode_webp() -> Result<()> {
     let img = ImageConverter::builder()
         .input_folder(
-            inquire::Text::new("Enter the directory with JPG images needing conversion")
-                .with_validator(required!())
-                .prompt()?,
+            Readline::default()
+                .title("Enter the input directory for the images needing conversion")
+                .prompt()?
+                .run()?,
         )
         .output_folder(
-            inquire::Text::new("Enter the output directory for the converted images")
-                .with_validator(required!())
-                .prompt()?,
+            Readline::default()
+                .title("Enter the output directory for the converted images")
+                .prompt()?
+                .run()?,
         )
         .quality(
-            CustomType::<f32>::new("What's the image quality?")
-                .with_error_message("Please use a valid floating point number")
-                .with_help_message("Please use numbers here")
-                .prompt()?,
+            Listbox::new(0..100)
+                .title("What's the image quality?")
+                .prompt()?
+                .run()?
+                .parse::<f32>()?,
         )
         .build();
 
@@ -80,24 +83,28 @@ pub fn encode_webp() -> Result<()> {
 pub fn rename_images() -> Result<()> {
     let renamer = ImageRenamer::builder()
         .input_folder(
-            inquire::Text::new("Enter the directory with images to rename: ")
-                .with_validator(required!())
-                .prompt()?,
+            Readline::default()
+                .title("Enter the directory with images to rename: ")
+                .prompt()?
+                .run()?,
         )
         .output_folder(
-            inquire::Text::new("Enter the output directory for the renamed images: ")
-                .with_validator(required!())
-                .prompt()?,
+            Readline::default()
+                .title("Enter the output directory for the renamed images: ")
+                .prompt()?
+                .run()?,
         )
         .prefix(
-            inquire::Text::new("Enter a prefix for the renamed files: ")
-                .with_validator(required!())
-                .prompt()?,
+            Readline::default()
+                .title("Enter a prefix for the renamed files: ")
+                .prompt()?
+                .run()?,
         )
         .name(
-            inquire::Text::new("Enter the new file name: ")
-                .with_validator(required!())
-                .prompt()?,
+            Readline::default()
+                .title("Enter the new filename: ")
+                .prompt()?
+                .run()?,
         )
         .build();
 

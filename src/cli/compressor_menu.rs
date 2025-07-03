@@ -1,36 +1,34 @@
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use bon::Builder;
-use inquire::Select;
+use promkit::{
+    Prompt,
+    preset::listbox::{Listbox, render::Renderer},
+};
 
 use crate::controllers::compressor;
 
 #[derive(Builder)]
 struct CompressorMenu<'a> {
-    items: Vec<&'a str>,
-    help_message: Option<&'a str>,
+    items: &'a [&'a str],
 }
 
-impl<'a> CompressorMenu<'a> {
-    fn prompt(&self) -> Result<&'a str> {
-        let choice = Select::new(
-            "Which compression operation would you like to perform?",
-            self.items.clone(),
-        )
-        .with_help_message(self.help_message.unwrap_or_default())
-        .prompt()?;
+impl CompressorMenu<'_> {
+    fn prompt(&self) -> Result<Prompt<Renderer>> {
+        let p = Listbox::new(self.items)
+            .title("What number do you like?")
+            .prompt()?;
 
-        Ok(choice)
+        Ok(p)
     }
 }
 
 pub fn compression_operations() -> Result<()> {
     loop {
         let menu = CompressorMenu::builder()
-            .items(vec!["Compress a folder of images", "Go back"])
-            .help_message("Compression menu")
+            .items(&["Compress a folder of images", "Go back"])
             .build();
 
-        match menu.prompt()? {
+        match menu.prompt()?.run()?.as_str() {
             "Compress a folder of images" => compressor::compress_images()?,
             "Go back" => {
                 break;

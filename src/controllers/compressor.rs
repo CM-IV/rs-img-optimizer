@@ -2,12 +2,10 @@ use anyhow::Result;
 use bon::Builder;
 use image_compressor::Factor;
 use image_compressor::FolderCompressor;
-use inquire::required;
-use inquire::CustomType;
 use owo_colors::OwoColorize;
-use spinoff::{spinners, Color, Spinner};
-
-use std::sync::mpsc;
+use promkit::preset::listbox::Listbox;
+use promkit::preset::readline::Readline;
+use spinoff::{Color, Spinner, spinners};
 
 #[derive(Builder)]
 struct ImageCompressor {
@@ -18,24 +16,26 @@ struct ImageCompressor {
 
 pub fn compress_images() -> Result<()> {
     let num = num_cpus::get() as u32;
-    let (tx, _tr) = mpsc::channel();
 
     let img = ImageCompressor::builder()
         .input_folder(
-            inquire::Text::new("Enter the directory containing JPG images")
-                .with_validator(required!())
-                .prompt()?,
+            Readline::default()
+                .title("Enter the input directory for the images to be compressed")
+                .prompt()?
+                .run()?,
         )
         .output_folder(
-            inquire::Text::new("Enter the output directory for the compressed images")
-                .with_validator(required!())
-                .prompt()?,
+            Readline::default()
+                .title("Enter the output directory for the compressed images")
+                .prompt()?
+                .run()?,
         )
         .quality(
-            CustomType::<f32>::new("What's the image quality?")
-                .with_error_message("Please use a valid floating point number")
-                .with_help_message("Please use numbers here")
-                .prompt()?,
+            Listbox::new(0..100)
+                .title("What's the image quality?")
+                .prompt()?
+                .run()?
+                .parse::<f32>()?,
         )
         .build();
 
@@ -44,7 +44,6 @@ pub fn compress_images() -> Result<()> {
     let mut comp = FolderCompressor::new(img.input_folder, img.output_folder);
     comp.set_factor(Factor::new(img.quality, 1.0));
     comp.set_thread_count(num);
-    comp.set_sender(tx);
 
     match comp.compress() {
         Ok(_) => {

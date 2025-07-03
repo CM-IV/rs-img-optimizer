@@ -1,12 +1,12 @@
 #![warn(clippy::pedantic)]
 
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use bon::Builder;
-use inquire::{
-    ui::{Attributes, Color, RenderConfig, StyleSheet},
-    Select,
-};
 use owo_colors::OwoColorize;
+use promkit::{
+    Prompt,
+    preset::listbox::{Listbox, render::Renderer},
+};
 
 pub mod cli;
 pub mod controllers;
@@ -19,50 +19,36 @@ const GREETING: &str = r"
                             /____/
 ";
 
-fn get_render_cfg() -> RenderConfig<'static> {
-    RenderConfig {
-        answer: StyleSheet::new()
-            .with_attr(Attributes::ITALIC)
-            .with_fg(Color::LightCyan),
-        help_message: StyleSheet::new().with_fg(Color::LightCyan),
-        ..Default::default()
-    }
-}
-
 #[derive(Builder)]
 struct MainMenu<'a> {
-    items: Vec<&'a str>,
-    help_message: Option<&'a str>,
+    items: &'a [&'a str],
 }
 
-impl<'a> MainMenu<'a> {
-    fn prompt(&self) -> Result<&'a str> {
-        let choice = Select::new("What would you like to do?", self.items.clone())
-            .with_help_message(self.help_message.unwrap_or_default())
+impl MainMenu<'_> {
+    fn prompt(&self) -> Result<Prompt<Renderer>> {
+        let p = Listbox::new(self.items)
+            .title("What number do you like?")
             .prompt()?;
 
-        Ok(choice)
+        Ok(p)
     }
 }
 
 fn main() -> Result<()> {
-    inquire::set_global_render_config(get_render_cfg());
-
     println!("{}", GREETING.red());
     println!("Image Processor");
     println!("By CM-IV <chuck@civdev.xyz>\n");
 
     loop {
         let menu = MainMenu::builder()
-            .items(vec![
+            .items(&[
                 "Optimize folder of images",
                 "Perform various conversion operations",
                 "Exit",
             ])
-            .help_message("Main menu")
             .build();
 
-        match menu.prompt()? {
+        match menu.prompt()?.run()?.as_str() {
             "Optimize folder of images" => cli::compressor_menu::compression_operations()?,
             "Perform various conversion operations" => {
                 cli::converter_menu::conversion_operations()?;
