@@ -1,3 +1,5 @@
+#![warn(clippy::pedantic)]
+
 use anyhow::{anyhow, Result};
 use bon::Builder;
 use inquire::{
@@ -9,14 +11,13 @@ use owo_colors::OwoColorize;
 pub mod cli;
 pub mod controllers;
 
-const GREETING: &str = r#"
-                _
+const GREETING: &str = r"
    __________      (_)___ ___  ____ _
   / ___/ ___/_____/ / __ `__ \/ __ `/
  / /  (__  )_____/ / / / / / / /_/ /
 /_/  /____/     /_/_/ /_/ /_/\__, /
                             /____/
-"#;
+";
 
 fn get_render_cfg() -> RenderConfig<'static> {
     RenderConfig {
@@ -55,7 +56,7 @@ fn main() -> Result<()> {
         let menu = MainMenu::builder()
             .items(vec![
                 "Optimize folder of images",
-                "Convert folder of images to WebP",
+                "Perform various conversion operations",
                 "Exit",
             ])
             .help_message("Main menu")
@@ -63,7 +64,9 @@ fn main() -> Result<()> {
 
         match menu.prompt()? {
             "Optimize folder of images" => cli::compressor_menu::compression_operations()?,
-            "Convert folder of images to WebP" => cli::converter_menu::conversion_operations()?,
+            "Perform various conversion operations" => {
+                cli::converter_menu::conversion_operations()?;
+            }
             "Exit" => {
                 println!("{}", "\nGoodbye!\n".purple());
                 break;

@@ -26,12 +26,17 @@ impl<'a> ConverterMenu<'a> {
 pub fn conversion_operations() -> Result<()> {
     loop {
         let menu = ConverterMenu::builder()
-            .items(vec!["Convert a folder of images to WebP", "Go back"])
+            .items(vec![
+                "Convert a folder of images to WebP",
+                "Rename a folder of images",
+                "Go back",
+            ])
             .help_message("Conversion menu")
             .build();
 
         match menu.prompt()? {
             "Convert a folder of images to WebP" => converter::encode_webp()?,
+            "Rename a folder of images" => converter::rename_images()?,
             "Go back" => {
                 break;
             }
