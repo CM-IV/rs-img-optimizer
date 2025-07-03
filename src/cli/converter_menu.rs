@@ -15,7 +15,7 @@ struct ConverterMenu<'a> {
 impl ConverterMenu<'_> {
     fn prompt(&self) -> Result<Prompt<Renderer>> {
         let p = Listbox::new(self.items)
-            .title("What number do you like?")
+            .title("Conversion operations")
             .prompt()?;
 
         Ok(p)

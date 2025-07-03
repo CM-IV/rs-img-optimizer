@@ -27,7 +27,7 @@ struct MainMenu<'a> {
 impl MainMenu<'_> {
     fn prompt(&self) -> Result<Prompt<Renderer>> {
         let p = Listbox::new(self.items)
-            .title("What number do you like?")
+            .title("Which operation to perform?")
             .prompt()?;
 
         Ok(p)
